@@ -1,18 +1,21 @@
 package com.saneet.demo.canvas
 
 import android.graphics.*
+import androidx.annotation.VisibleForTesting
 import androidx.core.graphics.contains
 import androidx.lifecycle.ViewModel
 import javax.inject.Inject
 
 class PointGame @Inject constructor() : ViewModel() {
     lateinit var rect: RectF
-    private val paintRect = Paint().apply {
+    @VisibleForTesting
+    public val paintRect = Paint().apply {
         strokeWidth = 3F
         color = Color.BLACK
         style = Paint.Style.STROKE
     }
-    private val paintPoint = Paint().apply {
+    @VisibleForTesting
+    public val paintPoint = Paint().apply {
         strokeWidth = 5F
         color = Color.BLUE
         style = Paint.Style.FILL_AND_STROKE
@@ -21,7 +24,7 @@ class PointGame @Inject constructor() : ViewModel() {
 
     fun setPointer(point: PointF) {
         this.point = point
-        paintPoint.color = if (rect.contains(point)) Color.GREEN else Color.RED
+        paintPoint.color = if (rect.contains(point)) Color.GREEN else Color.BLUE
     }
 
     fun draw(canvas: Canvas) {
