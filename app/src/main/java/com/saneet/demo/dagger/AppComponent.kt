@@ -2,7 +2,7 @@ package com.saneet.demo.dagger
 
 import com.saneet.demo.DemoApplication
 import com.saneet.demo.MainActivity
-import com.saneet.demo.feature.FeatureFragment
+import com.saneet.demo.canvas.CanvasFragment
 import dagger.Component
 import javax.inject.Singleton
 
@@ -17,5 +17,5 @@ interface AppComponent {
 
     fun inject(app: DemoApplication)
     fun inject(mainActivity: MainActivity)
-    fun inject(featureFragment: FeatureFragment)
+    fun inject(canvasFragment: CanvasFragment)
 }

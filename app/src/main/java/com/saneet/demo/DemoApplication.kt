@@ -28,7 +28,6 @@ class DemoApplication : Application() {
             StrictMode.VmPolicy.Builder()
                 .detectAll()
                 .penaltyLog()
-                .penaltyDeath()
                 .build()
         )
         super.onCreate()

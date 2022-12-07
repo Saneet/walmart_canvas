@@ -1,5 +1,6 @@
-package com.saneet.demo.feature
+package com.saneet.demo.canvas
 
+import android.graphics.RectF
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,18 +11,18 @@ import com.saneet.demo.R
 import com.saneet.demo.ViewModelFactory
 import javax.inject.Inject
 
-class FeatureFragment : Fragment() {
+class CanvasFragment : Fragment() {
 
     companion object {
-        fun newInstance() = FeatureFragment()
+        fun newInstance() = CanvasFragment()
     }
 
     @Inject
-    lateinit var viewModelFactory: ViewModelFactory<FeatureViewModel>
+    lateinit var viewModelFactory: ViewModelFactory<PointGame>
 
-    private val viewModel: FeatureViewModel by lazy {
-        viewModelFactory.get<FeatureViewModel>(
-            requireActivity()
+    private val viewModel: PointGame by lazy {
+        viewModelFactory.get<PointGame>(
+            this
         )
     }
 
@@ -29,7 +30,8 @@ class FeatureFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return inflater.inflate(R.layout.fragment_feature, container, false)
+        viewModel.rect = RectF(300F, 400F, 800F, 1200F)
+        return inflater.inflate(R.layout.fragment_canvas, container, false)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

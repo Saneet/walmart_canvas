@@ -2,7 +2,7 @@ package com.saneet.demo
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.saneet.demo.feature.FeatureFragment
+import com.saneet.demo.canvas.CanvasFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -11,7 +11,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                .replace(R.id.container, FeatureFragment.newInstance())
+                .replace(R.id.container, CanvasFragment.newInstance())
                 .commitNow()
         }
     }
