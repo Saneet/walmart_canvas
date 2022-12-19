@@ -1,15 +1,12 @@
 package com.saneet.demo.canvas
 
-import android.graphics.RectF
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import androidx.fragment.app.Fragment
-import com.saneet.demo.DemoApplication
 import com.saneet.demo.R
-import com.saneet.demo.ViewModelFactory
-import javax.inject.Inject
 
 class CanvasFragment : Fragment() {
 
@@ -17,25 +14,49 @@ class CanvasFragment : Fragment() {
         fun newInstance() = CanvasFragment()
     }
 
-    @Inject
-    lateinit var viewModelFactory: ViewModelFactory<PointGame>
-
-    private val viewModel: PointGame by lazy {
-        viewModelFactory.get<PointGame>(
-            this
-        )
-    }
+    var pointGame: PointGame? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel.rect = RectF(300F, 400F, 800F, 1200F)
         return inflater.inflate(R.layout.fragment_canvas, container, false)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        (requireActivity().application as DemoApplication).appComponent.inject(this)
-        super.onCreate(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        pointGame = PointGame()
+
+        requireView().findViewById<CanvasView>(R.id.canvas).let {
+            it.post {
+                it.gameRunner = pointGame
+                pointGame?.setParentViewBounds(it.width, it.height)
+            }
+        }
+
+        requireView().findViewById<Button>(R.id.add_rect)
+            .setOnClickListener { pointGame?.addRect() }
+
+        requireView().findViewById<Button>(R.id.clear)
+            .setOnClickListener { pointGame?.clearShapes() }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        pointGame?.startAnimations()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        pointGame?.stopAnimations()
+    }
+
+    override fun onDestroyView() {
+        requireView().findViewById<CanvasView>(R.id.canvas).apply {
+            pointGame = null
+        }
+        pointGame = null
+        super.onDestroyView()
     }
 }
