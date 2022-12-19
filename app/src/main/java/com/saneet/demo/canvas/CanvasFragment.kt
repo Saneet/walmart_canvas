@@ -8,7 +8,7 @@ import android.widget.Button
 import androidx.fragment.app.Fragment
 import com.saneet.demo.R
 
-class CanvasFragment : Fragment() {
+class CanvasFragment : Fragment(), View.OnClickListener {
 
     companion object {
         fun newInstance() = CanvasFragment()
@@ -28,18 +28,21 @@ class CanvasFragment : Fragment() {
 
         pointGame = PointGame()
 
-        requireView().findViewById<CanvasView>(R.id.canvas).let {
-            it.post {
-                it.gameRunner = pointGame
-                pointGame?.setParentViewBounds(it.width, it.height)
-            }
+        val canvasView = requireView().findViewById<CanvasView>(R.id.canvas)
+        canvasView.gameRunner = pointGame
+        canvasView.post {
+            pointGame?.setParentViewBounds(canvasView.width, canvasView.height)
         }
 
-        requireView().findViewById<Button>(R.id.add_rect)
-            .setOnClickListener { pointGame?.addRect() }
-
-        requireView().findViewById<Button>(R.id.clear)
-            .setOnClickListener { pointGame?.clearShapes() }
+        listOf(
+            requireView().findViewById<Button>(R.id.add_rect),
+            requireView().findViewById<Button>(R.id.add_circle),
+            requireView().findViewById<Button>(R.id.add_ellipse),
+            requireView().findViewById<Button>(R.id.add_square),
+            requireView().findViewById<Button>(R.id.clear),
+        ).forEach {
+            it.setOnClickListener(this)
+        }
     }
 
     override fun onResume() {
@@ -58,5 +61,15 @@ class CanvasFragment : Fragment() {
         }
         pointGame = null
         super.onDestroyView()
+    }
+
+    override fun onClick(v: View?) {
+        when (v?.id) {
+            R.id.add_rect -> pointGame?.addRect()
+            R.id.add_circle -> pointGame?.addCircle()
+            R.id.add_ellipse -> pointGame?.addEllipse()
+            R.id.add_square -> pointGame?.addSquare()
+            R.id.clear -> pointGame?.clearShapes()
+        }
     }
 }

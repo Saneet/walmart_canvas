@@ -3,19 +3,15 @@ package com.saneet.demo.canvas
 import android.animation.AnimatorSet
 import android.animation.ValueAnimator
 import android.graphics.*
-import android.util.Log
 import android.view.MotionEvent
-import android.view.MotionEvent.*
+import android.view.MotionEvent.ACTION_DOWN
+import android.view.MotionEvent.ACTION_MOVE
 import androidx.annotation.VisibleForTesting
-import com.saneet.demo.models.Pointer
-import com.saneet.demo.models.Rectangle
-import com.saneet.demo.models.Shape
+import com.saneet.demo.models.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
@@ -24,18 +20,25 @@ class PointGame() {
     private var canvasHeight: Int? = null
     var updateCallback: (() -> Unit)? = null
     private val animationUpdateListener = ValueAnimator.AnimatorUpdateListener {
-        updateCallback?.invoke()
+        //We just need a signal and no object here
+        animationUpdateState.tryEmit(null)
     }
     private val shapes = mutableListOf<Shape>()
     private var animationsRunning: Boolean = false
     private var animations = AnimatorSet()
 
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
-    private val touchEventState = MutableStateFlow<PointF?>(null)
+    private val touchEventState =
+        MutableSharedFlow<PointF>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    private val animationUpdateState =
+        MutableSharedFlow<Unit?>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     private val pointerState = MutableStateFlow<Pointer?>(null)
-    private val pointerFlow = touchEventState.debounce(8).map { point ->
-        if (point != null) Pointer(point, calculateColorForPoint(point)) else null
-    }.flowOn(Dispatchers.Default)
+    private val pointerFlow =
+        animationUpdateState.combine(touchEventState) { _: Unit?, point: PointF -> point }
+            .sample(5)
+            .map { point ->
+                Pointer(point, calculateColorForPoint(point))
+            }.flowOn(Dispatchers.Default)
 
     init {
         coroutineScope.launch {
@@ -54,7 +57,7 @@ class PointGame() {
     private fun calculateColorForPoint(point: PointF): Int {
         shapes.forEach { shape ->
             if (shape.contains(point))
-                Color.GREEN
+                return Color.GREEN
         }
         return Color.BLUE
     }
@@ -77,7 +80,6 @@ class PointGame() {
         canvas.drawRGB(255, 255, 255)
         shapes.map {
             it.draw(canvas, paintRect)
-            Log.i("Saneet", "Left: ${it.bounds.left} | Top: ${it.bounds.top}")
         }
         pointerState.value?.run {
             canvas.drawCircle(
@@ -86,9 +88,12 @@ class PointGame() {
                 10F,
                 paintPoint.apply { color = pointColor })
         }
+        if (shapes.size > 0) {
+            updateCallback?.invoke()
+        }
     }
 
-    fun addRect() {
+    private fun createNewRectForShape(squareBounds: Boolean): MutableRect {
         if ((canvasWidth == null) || (canvasHeight == null)) {
             throw IllegalStateException("CanvasWidth or Height were not set before adding Shapes")
         }
@@ -101,15 +106,53 @@ class PointGame() {
         )
 
         val width = maxWidth * Random.nextFloat()
-        val height = maxHeight * Random.nextFloat()
-        val shape = Rectangle(
-            bounds = RectF(startPosition.x, startPosition.y, width, height),
-            parentBounds = RectF(0F, 0F, canvasWidth!!.toFloat(), canvasHeight!!.toFloat())
+        val height = if (squareBounds) width else maxHeight * Random.nextFloat()
+        return MutableRect(startPosition.x, startPosition.y, width, height)
+    }
+
+    fun addRect() {
+        initShape(
+            Rectangle(
+                bounds = createNewRectForShape(false),
+                parentBounds = RectF(0F, 0F, canvasWidth!!.toFloat(), canvasHeight!!.toFloat())
+            )
         )
+    }
+
+    fun addCircle() {
+        initShape(
+            Circle(
+                bounds = createNewRectForShape(true),
+                parentBounds = RectF(0F, 0F, canvasWidth!!.toFloat(), canvasHeight!!.toFloat())
+            )
+        )
+    }
+
+    fun addEllipse() {
+        initShape(
+            Ellipse(
+                bounds = createNewRectForShape(false),
+                parentBounds = RectF(0F, 0F, canvasWidth!!.toFloat(), canvasHeight!!.toFloat())
+            )
+        )
+    }
+
+    fun addSquare() {
+        initShape(
+            Rectangle(
+                bounds = createNewRectForShape(true),
+                parentBounds = RectF(0F, 0F, canvasWidth!!.toFloat(), canvasHeight!!.toFloat())
+            )
+        )
+    }
+
+    private fun initShape(shape: Shape) {
         shape.setUpdateListener(animationUpdateListener)
         shapes.add(shape)
         shape.animators.forEach { animations.play(it) }
         animations.playTogether(shape.animators)
+        animations.start()
+        updateCallback?.invoke()
     }
 
     fun clearShapes() {
@@ -131,8 +174,8 @@ class PointGame() {
 
     fun handleTouchEvent(event: MotionEvent?) {
         when (event?.action) {
-            ACTION_DOWN, ACTION_MOVE -> touchEventState.value = PointF(event.x, event.y)
-            ACTION_UP -> touchEventState.value = null
+            ACTION_DOWN, ACTION_MOVE -> touchEventState.tryEmit(PointF(event.x, event.y))
         }
     }
+
 }

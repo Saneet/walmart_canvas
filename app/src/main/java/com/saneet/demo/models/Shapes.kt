@@ -7,13 +7,12 @@ import android.graphics.Paint
 import android.graphics.PointF
 import android.graphics.RectF
 import android.view.animation.LinearInterpolator
+import kotlin.math.pow
+
 
 abstract class Shape protected constructor(
-    rect: RectF,
-    parentBounds: RectF
+    protected val bounds: MutableRect, parentBounds: RectF
 ) {
-    val bounds =
-        MutableRect(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top)
     val animators: List<ValueAnimator>
     private val xDuration = (1000..3000).random().toLong()
     private val yDuration = (1000..3000).random().toLong()
@@ -61,7 +60,7 @@ abstract class Shape protected constructor(
     abstract fun draw(canvas: Canvas, paint: Paint)
 }
 
-class Rectangle(bounds: RectF, parentBounds: RectF) : Shape(bounds, parentBounds) {
+class Rectangle(bounds: MutableRect, parentBounds: RectF) : Shape(bounds, parentBounds) {
     override fun contains(point: PointF): Boolean {
         return withinBounds(point)
     }
@@ -71,20 +70,43 @@ class Rectangle(bounds: RectF, parentBounds: RectF) : Shape(bounds, parentBounds
     }
 }
 
-class Circle(private val center: PointF, private val radius: Float, bounds: RectF) :
-    Shape(
-        RectF(center.x - radius, center.y - radius, center.x + radius, center.y + radius),
-        bounds
-    ) {
+class Ellipse(bounds: MutableRect, parentBounds: RectF) : Shape(bounds, parentBounds) {
+    private fun widthAxis() = bounds.width / 2F
+    private fun heightAxis() = bounds.height / 2F
+    private fun center(): PointF {
+        return PointF(bounds.left + widthAxis(), bounds.top + heightAxis())
+    }
+
     override fun contains(point: PointF): Boolean {
-        return withinBounds(point) && PointF.length(
-            center.x - point.x,
-            center.y - point.y
-        ) <= radius
+        return withinBounds(point) && center().let {
+            val xFraction = (point.x - it.x).pow(2) / widthAxis().pow(2)
+            val yFraction = (point.y - it.y).pow(2) / heightAxis().pow(2)
+            (xFraction + yFraction) <= 1
+        }
     }
 
     override fun draw(canvas: Canvas, paint: Paint) {
-        canvas.drawCircle(center.x, center.y, radius, paint)
+        canvas.drawOval(bounds.toRect(), paint)
+    }
+}
+
+class Circle(bounds: MutableRect, parentBounds: RectF) : Shape(bounds, parentBounds) {
+    private fun radius() = bounds.width / 2F
+    private fun center(): PointF {
+        val radius = radius()
+        return PointF(bounds.left + radius, bounds.top + radius)
+    }
+
+    override fun contains(point: PointF): Boolean {
+        return withinBounds(point) && center().run {
+            PointF.length(
+                x - point.x, y - point.y
+            ) <= radius()
+        }
+    }
+
+    override fun draw(canvas: Canvas, paint: Paint) {
+        center().run { canvas.drawCircle(x, y, radius(), paint) }
     }
 }
 
