@@ -1,20 +1,13 @@
 package com.saneet.demo.canvas
 
 import android.graphics.*
-import com.nhaarman.mockitokotlin2.firstValue
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.secondValue
-import com.nhaarman.mockitokotlin2.verify
-import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.eq
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
-class PointGameTest {
-    private val viewModel = PointGame()
+class PointGameViewModelTest {
+    private val viewModel = PointGameViewModel()
 
     @Test
     fun setPointer_inside_green() {

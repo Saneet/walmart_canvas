@@ -79,6 +79,15 @@
             android:layout_margin="7dp"
             android:text="Clear" />
 
+        <TextView
+            android:id="@+id/view_count"
+            style="@style/TextAppearance.Material3.BodyMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="7dp"
+            android:textAlignment="viewEnd"
+            android:text="Shape Count: 0" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

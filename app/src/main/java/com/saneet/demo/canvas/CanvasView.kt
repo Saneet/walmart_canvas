@@ -1,11 +1,9 @@
 package com.saneet.demo.canvas
 
-import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 
@@ -15,7 +13,7 @@ class CanvasView @JvmOverloads constructor(
     defStyle: Int = 0
 ) : View(context, attrs, defStyle) {
 
-    var gameRunner: PointGame? = null
+    var gameRunner: PointGameViewModel? = null
         set(value) {
             field?.updateCallback = null
             field = value

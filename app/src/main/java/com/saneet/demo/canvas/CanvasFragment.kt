@@ -5,7 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.saneet.demo.R
 
 class CanvasFragment : Fragment(), View.OnClickListener {
@@ -14,7 +16,8 @@ class CanvasFragment : Fragment(), View.OnClickListener {
         fun newInstance() = CanvasFragment()
     }
 
-    var pointGame: PointGame? = null
+    private lateinit var pointGameViewModel: PointGameViewModel
+    private val shapeCreator = ShapeCreator()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -26,12 +29,12 @@ class CanvasFragment : Fragment(), View.OnClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        pointGame = PointGame()
+        pointGameViewModel = ViewModelProvider(this)[PointGameViewModel::class.java]
 
         val canvasView = requireView().findViewById<CanvasView>(R.id.canvas)
-        canvasView.gameRunner = pointGame
+        canvasView.gameRunner = pointGameViewModel
         canvasView.post {
-            pointGame?.setParentViewBounds(canvasView.width, canvasView.height)
+            shapeCreator.setParentViewBounds(canvasView.width, canvasView.height)
         }
 
         listOf(
@@ -47,29 +50,38 @@ class CanvasFragment : Fragment(), View.OnClickListener {
 
     override fun onResume() {
         super.onResume()
-        pointGame?.startAnimations()
+        pointGameViewModel.startAnimations()
     }
 
     override fun onPause() {
+        pointGameViewModel.stopAnimations()
         super.onPause()
-        pointGame?.stopAnimations()
     }
 
     override fun onDestroyView() {
         requireView().findViewById<CanvasView>(R.id.canvas).apply {
-            pointGame = null
+            gameRunner = null
         }
-        pointGame = null
         super.onDestroyView()
     }
 
     override fun onClick(v: View?) {
-        when (v?.id) {
-            R.id.add_rect -> pointGame?.addRect()
-            R.id.add_circle -> pointGame?.addCircle()
-            R.id.add_ellipse -> pointGame?.addEllipse()
-            R.id.add_square -> pointGame?.addSquare()
-            R.id.clear -> pointGame?.clearShapes()
+        if (v?.id == R.id.clear) {
+            pointGameViewModel.clearShapes()
+            requireView().findViewById<TextView>(R.id.view_count).text =
+                "Shape Count: ${pointGameViewModel.getShapeCount()}"
+        } else {
+            pointGameViewModel.addShape(
+                when (v?.id) {
+                    R.id.add_rect -> shapeCreator.createRect()
+                    R.id.add_circle -> shapeCreator.createCircle()
+                    R.id.add_ellipse -> shapeCreator.createEllipse()
+                    R.id.add_square -> shapeCreator.createSquare()
+                    else -> shapeCreator.createRect()
+                }
+            )
+            requireView().findViewById<TextView>(R.id.view_count).text =
+                "Shape Count: ${pointGameViewModel.getShapeCount()}"
         }
     }
 }

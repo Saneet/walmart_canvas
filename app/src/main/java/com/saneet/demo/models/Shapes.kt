@@ -56,6 +56,12 @@ abstract class Shape protected constructor(
         }
     }
 
+    fun clearUpdateListener() {
+        animators.forEach {
+            it.removeAllUpdateListeners()
+        }
+    }
+
     abstract fun contains(point: PointF): Boolean
     abstract fun draw(canvas: Canvas, paint: Paint)
 }
