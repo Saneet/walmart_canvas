@@ -1,14 +1,13 @@
+# Overview
+Reimplemented the project with more features.  
+[![Video Demo on Youtube](screenshot.png)](https://www.youtube.com/shorts/7ev4QuS4hrc)
+
 # Requirements
 We are going to build a simple location-based game.   
 You task is to create a geo-fence boundary and display a blue dot on a canvas, when the blue dot enters the geo-fence region, color of dot should change from blue to green and when it exits the region the color should change back to blue.   
 Please code your solution in Kotlin.
 
-# Overview
-Reimplemented the project with more features.  
-** Video Demo: ** [Link to video demo](https://www.youtube.com/shorts/7ev4QuS4hrc)
-
 # Implementation
-
 ## Calculation
 1. Each Animator's Update event is sent to a SharedFlow. Each TouchEvent is sent to another SharedFlow.
 2. Both these SharedFlows are combined and then sampled by 5ms to get a series of calc events.
