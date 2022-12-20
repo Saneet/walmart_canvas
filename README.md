@@ -1,6 +1,6 @@
 # Overview
 Reimplemented the project with more features.  
-[![Video Demo on Youtube](screenshot.png)](https://www.youtube.com/shorts/7ev4QuS4hrc)
+[Video Demo on Youtube](https://www.youtube.com/shorts/7ev4QuS4hrc)
 
 # Requirements
 We are going to build a simple location-based game.   
