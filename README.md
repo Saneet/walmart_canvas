@@ -1,7 +1,7 @@
 # Overview
 Reimplemented the project with more features.  
-[Video Demo](https://github.com/Saneet/walmart_canvas/raw/main/WalmartDemo.mp4)
-[Video Demo on Youtube](https://www.youtube.com/shorts/7ev4QuS4hrc)
+[Video Demo](https://github.com/Saneet/walmart_canvas/raw/main/WalmartDemo.mp4)  
+[Video Demo on Youtube](https://www.youtube.com/shorts/7ev4QuS4hrc)  
 
 # Requirements
 We are going to build a simple location-based game.   
