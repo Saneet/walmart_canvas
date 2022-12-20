@@ -69,7 +69,7 @@ class CanvasFragment : Fragment(), View.OnClickListener {
         if (v?.id == R.id.clear) {
             pointGameViewModel.clearShapes()
             requireView().findViewById<TextView>(R.id.view_count).text =
-                "Shape Count: ${pointGameViewModel.getShapeCount()}"
+                "Shapes: ${pointGameViewModel.getShapeCount()}"
         } else {
             pointGameViewModel.addShape(
                 when (v?.id) {
@@ -81,7 +81,7 @@ class CanvasFragment : Fragment(), View.OnClickListener {
                 }
             )
             requireView().findViewById<TextView>(R.id.view_count).text =
-                "Shape Count: ${pointGameViewModel.getShapeCount()}"
+                "Shapes: ${pointGameViewModel.getShapeCount()}"
         }
     }
 }

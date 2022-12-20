@@ -81,12 +81,12 @@
 
         <TextView
             android:id="@+id/view_count"
-            style="@style/TextAppearance.Material3.BodyMedium"
+            style="@style/TextAppearance.Material3.TitleLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="7dp"
             android:textAlignment="viewEnd"
-            android:text="Shape Count: 0" />
+            android:text="Shapes: 0" />
 
     </LinearLayout>
 
